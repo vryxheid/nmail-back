@@ -2,8 +2,6 @@ package com.branching.nmail.controller;
 
 import com.branching.nmail.model.User;
 import com.branching.nmail.service.UserService;
-import de.mkammerer.argon2.Argon2;
-import de.mkammerer.argon2.Argon2Factory;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -26,21 +24,6 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }
-    }
-
-    @PostMapping(value = "/user")
-    @Operation(summary = "Register a user")
-    public User registerUser(@RequestBody User user) {
-        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
-        String hash = argon2.hash(1, 1024, 1, user.getPassword());
-        user.setPassword(hash);
-        return userService.saveUser(user);
-    }
-
-    @PostMapping
-    @Operation(summary = "Log In")
-    public User logInUser(User user) {
-        return new User();
     }
 
     @GetMapping(value = "user/{id}")

@@ -10,9 +10,11 @@ import java.util.List;
 
 @Repository
 public interface MessageDao extends JpaRepository<Message, Integer> {
-    public List<Message> findMessageByRecipientId(int id);
+    public List<Message> findMessageByRecipientIdAndIsTrashFalse(int id);
 
-    public List<Message> findMessageBySenderId(int id);
+    public List<Message> findMessageBySenderIdAndIsTrashFalse(int id);
+
+    public List<Message> findMessageByRecipientIdAndIsTrashTrue(int id);
 
     public Message findById(int id);
 

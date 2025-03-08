@@ -46,12 +46,13 @@ public class User {
         this.password = password;
     }
 
-    public User(int id, String name, String email, String password, String phone, Date lastLogIn) {
+    public User(int id, String name, String email, String password, String phone, Date lastLogIn, boolean isSuperAdmin) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
         this.lastLogIn = lastLogIn;
+        this.isSuperAdmin = isSuperAdmin;
     }
 }

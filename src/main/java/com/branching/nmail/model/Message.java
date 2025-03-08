@@ -35,6 +35,9 @@ public class Message {
     @Column(name = "read")
     private boolean read;
 
+    @Column(name = "is_trash")
+    private boolean isTrash;
+
 //    public Message() {
 //    }
 //

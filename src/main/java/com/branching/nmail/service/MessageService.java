@@ -26,11 +26,15 @@ public class MessageService implements ISearchable<Message> {
     }
 
     public List<Message> getMessagesBySenderId(int senderId) {
-        return messageDao.findMessageBySenderId(senderId);
+        return messageDao.findMessageBySenderIdAndIsTrashFalse(senderId);
     }
 
     public List<Message> getMessagesByRecipientId(int recipientId) {
-        return messageDao.findMessageByRecipientId(recipientId);
+        return messageDao.findMessageByRecipientIdAndIsTrashFalse(recipientId);
+    }
+
+    public List<Message> getTrashMessagesByRecipientId(int recipientId) {
+        return messageDao.findMessageByRecipientIdAndIsTrashTrue(recipientId);
     }
 
     public List<Message> search(int userId, String searchText, boolean caseSensitive) {

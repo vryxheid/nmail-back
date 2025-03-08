@@ -4,9 +4,11 @@ import com.branching.nmail.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface UserDao extends JpaRepository<User, Integer> {
-//    public Optional<User> findByEmail(String email);
+    public Optional<User> findByEmail(String email);
 //    public int logInAttempt(String email, String password);
 }

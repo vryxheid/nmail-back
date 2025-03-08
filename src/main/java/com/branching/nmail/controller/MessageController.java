@@ -37,6 +37,16 @@ public class MessageController {
         }
     }
 
+    @GetMapping(value = "/trash/{id}")
+    @Operation(summary = "Get list of messages that a user sent to the trash")
+    public ResponseEntity<List<Message>> getTrashByRecipientId(@PathVariable int id) {
+        try {
+            return new ResponseEntity<>(messageService.getTrashMessagesByRecipientId(id), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatusCode.valueOf(500));
+        }
+    }
+
     @GetMapping(value = "/message/{id}")
     @Operation(summary = "Get message by id")
     public ResponseEntity<Message> getMessageById(@PathVariable int id) {
