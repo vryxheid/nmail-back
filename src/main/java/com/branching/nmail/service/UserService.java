@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -28,14 +29,13 @@ public class UserService {
     public User getUserById(int id) {
         return userDao.findById(id)
                 .orElse(null);
-
     }
 
-//    public User getUserByEmail(String email) {
-//        return userDao.findByEmail(email)
-//                .orElse(null);
-//
-//    }
+    public User getUserByEmail(String email) {
+        return userDao.findByEmail(email)
+                .orElse(null);
+
+    }
 
     public void deleteUserById(int id) {
         userDao.deleteById(id);
@@ -49,9 +49,11 @@ public class UserService {
         Authentication authentication =
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (authentication.isAuthenticated()) {
+            user = getUserByEmail(user.getEmail());
+            user.setLastLogIn(new Date());
+            userDao.save(user);
             return jwtService.generateToken(user);
         }
         return "Fail";
-
     }
 }

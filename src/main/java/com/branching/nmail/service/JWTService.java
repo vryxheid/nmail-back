@@ -37,6 +37,7 @@ public class JWTService {
 
         Map<String, Object> claims = new HashMap<>();
 
+        claims.put("id", user.getId());
         return Jwts.builder()
                 .claims()
                 .add(claims)
@@ -57,6 +58,11 @@ public class JWTService {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+
+    public Integer extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", Integer.class)); // Extracting the user ID
+    }
+
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
