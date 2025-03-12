@@ -1,5 +1,6 @@
 package com.branching.nmail.service;
 
+import com.branching.nmail.controller.models.VerificationAnswer;
 import com.branching.nmail.model.User;
 import com.branching.nmail.repository.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class UserService {
         return userDao.save(user);
     }
 
-    public String verify(User user) {
+    public VerificationAnswer verify(User user) {
         Authentication authentication =
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (authentication.isAuthenticated()) {
@@ -54,6 +55,6 @@ public class UserService {
             userDao.save(user);
             return jwtService.generateToken(user);
         }
-        return "Fail";
+        return new VerificationAnswer("Fail", null);
     }
 }

@@ -1,10 +1,12 @@
 package com.branching.nmail.service;
 
+import com.branching.nmail.controller.models.VerificationAnswer;
 import com.branching.nmail.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -33,20 +35,24 @@ public class JWTService {
 
     }
 
-    public String generateToken(User user) {
+    public VerificationAnswer generateToken(User user) {
 
         Map<String, Object> claims = new HashMap<>();
 
         claims.put("id", user.getId());
-        return Jwts.builder()
+        Date expirationDate = new Date((System.currentTimeMillis() + 1000 * 60 * 30)); // Expiration in 30 minutes
+
+        String token = Jwts.builder()
                 .claims()
                 .add(claims)
                 .subject(user.getEmail())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date((System.currentTimeMillis() + 1000 * 60 * 30))) // Expiration in 30 minutes
+                .expiration(expirationDate)
                 .and()
                 .signWith(getKey())
                 .compact();
+
+        return new VerificationAnswer(token, expirationDate);
 
     }
 

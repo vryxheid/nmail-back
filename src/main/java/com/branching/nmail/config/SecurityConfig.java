@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .permitAll() // Permit requests matched in the prev line
                         .anyRequest().authenticated()) // require authentication on every request. By default, it checks username and password. We want Jwt, so we specify it later using addFilterBefore
 //                .formLogin(Customizer.withDefaults()) // Enable default login form. We will use our own one
-                .httpBasic(Customizer.withDefaults()) // For postman requests, for example, where I cannot see login page
+//                .httpBasic(Customizer.withDefaults()) // For postman requests, for example, where I cannot see login page
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

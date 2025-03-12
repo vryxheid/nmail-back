@@ -1,5 +1,6 @@
 package com.branching.nmail.controller;
 
+import com.branching.nmail.controller.models.VerificationAnswer;
 import com.branching.nmail.model.User;
 import com.branching.nmail.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +38,7 @@ public class AuthController {
 
     @PostMapping(value = "/login")
     @Operation(summary = "Log In")
-    public ResponseEntity<String> logInUser(@RequestBody User user) {
+    public ResponseEntity<VerificationAnswer> logInUser(@RequestBody User user) {
         try {
             return new ResponseEntity<>(userService.verify(user), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
