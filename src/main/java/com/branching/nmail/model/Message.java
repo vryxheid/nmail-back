@@ -13,7 +13,8 @@ import java.util.Date;
 public class Message {
     @Column(name = "id")
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "messages_id_generator")
+    @SequenceGenerator(name = "messages_id_generator", sequenceName = "messages_seq", allocationSize = 1)
     private int id;
 
     @Column(name = "subject")
@@ -38,17 +39,17 @@ public class Message {
     @Column(name = "is_trash")
     private boolean isTrash;
 
-//    public Message() {
-//    }
-//
-//    public Message(String subject, String body, int senderId, int recipientId, Date date, boolean read) {
-//        this.subject = subject;
-//        this.body = body;
-//        this.senderId = senderId;
-//        this.recipientId = recipientId;
-//        this.date = date;
-//        this.read = read;
-//    }
+    public Message() {
+    }
 
-
+    public Message(int id, String subject, String body, int senderId, int recipientId, Date date, boolean read, boolean isTrash) {
+        this.id = id;
+        this.subject = subject;
+        this.body = body;
+        this.senderId = senderId;
+        this.recipientId = recipientId;
+        this.date = date;
+        this.read = read;
+        this.isTrash = isTrash;
+    }
 }

@@ -28,12 +28,16 @@ public class AuthController {
 
     @PostMapping(value = "/register")
     @Operation(summary = "Register a user")
-    public User registerUser(@RequestBody User user) {
-        BCryptPasswordEncoder arg2SpringSecurity = new BCryptPasswordEncoder(12);
-        String hash = arg2SpringSecurity.encode(user.getPassword());
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
+        try {
+            BCryptPasswordEncoder arg2SpringSecurity = new BCryptPasswordEncoder(12);
+            String hash = arg2SpringSecurity.encode(user.getPassword());
 
-        user.setPassword(hash);
-        return userService.saveUser(user);
+            user.setPassword(hash);
+            return new ResponseEntity<>(userService.saveUser(user), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatusCode.valueOf(500));
+        }
     }
 
     @PostMapping(value = "/login")
@@ -42,7 +46,7 @@ public class AuthController {
         try {
             return new ResponseEntity<>(userService.verify(user), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatusCode.valueOf(500));
+            return new ResponseEntity<>(HttpStatusCode.valueOf(401));
         }
     }
 }

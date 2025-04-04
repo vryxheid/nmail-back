@@ -6,7 +6,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +39,7 @@ public class JWTService {
         Map<String, Object> claims = new HashMap<>();
 
         claims.put("id", user.getId());
-        Date expirationDate = new Date((System.currentTimeMillis() + 1000 * 60 * 30)); // Expiration in 30 minutes
+        Date expirationDate = new Date((System.currentTimeMillis() + 1000 * 60 * 60 * 4)); // Expiration in 4 hours
 
         String token = Jwts.builder()
                 .claims()
@@ -52,7 +51,7 @@ public class JWTService {
                 .signWith(getKey())
                 .compact();
 
-        return new VerificationAnswer(token, expirationDate);
+        return new VerificationAnswer(token, expirationDate, user.getId());
 
     }
 

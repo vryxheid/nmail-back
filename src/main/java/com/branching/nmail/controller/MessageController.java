@@ -1,15 +1,19 @@
 package com.branching.nmail.controller;
 
 import com.branching.nmail.controller.models.SearchMessageRequest;
+import com.branching.nmail.controller.models.SendMessageRequest;
 import com.branching.nmail.model.Message;
+import com.branching.nmail.model.MessageWithEmails;
 import com.branching.nmail.service.JWTService;
 import com.branching.nmail.service.MessageService;
+import com.branching.nmail.utils.MessageMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -21,14 +25,17 @@ public class MessageController {
     @Autowired
     JWTService jwtService;
 
+    @Autowired
+    MessageMapper messageMapper;
+
     @GetMapping(value = "/inbox")
     @Operation(summary = "Get list of messages received by the authenticated user")
-    public ResponseEntity<List<Message>> getInboxMessages(@RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<List<MessageWithEmails>> getInboxMessages(@RequestHeader(value = "Authorization") String token) {
         try {
             String reducedToken = token.substring(7);
             int id = jwtService.extractUserId(reducedToken);
-
-            return new ResponseEntity<>(messageService.getMessagesByRecipientId(id), HttpStatusCode.valueOf(200));
+            List<Message> messages = messageService.getMessagesByRecipientId(id);
+            return new ResponseEntity<>(messageMapper.mapMessagesToMessagesWithEmails(messages), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }
@@ -36,12 +43,12 @@ public class MessageController {
 
     @GetMapping(value = "/sent")
     @Operation(summary = "Get list of messages sent by a user")
-    public ResponseEntity<List<Message>> getMessagesBySenderId(@RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<List<MessageWithEmails>> getMessagesBySenderId(@RequestHeader(value = "Authorization") String token) {
         try {
             String reducedToken = token.substring(7);
             int id = jwtService.extractUserId(reducedToken);
-
-            return new ResponseEntity<>(messageService.getMessagesBySenderId(id), HttpStatusCode.valueOf(200));
+            List<Message> messages = messageService.getMessagesBySenderId(id);
+            return new ResponseEntity<>(messageMapper.mapMessagesToMessagesWithEmails(messages), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }
@@ -49,12 +56,12 @@ public class MessageController {
 
     @GetMapping(value = "/trash")
     @Operation(summary = "Get list of messages that a user sent to the trash")
-    public ResponseEntity<List<Message>> getTrashByRecipientId(@RequestHeader(value = "Authorization") String token) {
+    public ResponseEntity<List<MessageWithEmails>> getTrashByRecipientId(@RequestHeader(value = "Authorization") String token) {
         try {
             String reducedToken = token.substring(7);
             int id = jwtService.extractUserId(reducedToken);
-
-            return new ResponseEntity<>(messageService.getTrashMessagesByRecipientId(id), HttpStatusCode.valueOf(200));
+            List<Message> messages = messageService.getTrashMessagesByRecipientId(id);
+            return new ResponseEntity<>(messageMapper.mapMessagesToMessagesWithEmails(messages), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }
@@ -62,7 +69,7 @@ public class MessageController {
 
     @GetMapping(value = "/message/{id}")
     @Operation(summary = "Get message by id")
-    public ResponseEntity<Message> getMessageById(@RequestHeader(value = "Authorization") String token, @PathVariable int id) {
+    public ResponseEntity<MessageWithEmails> getMessageById(@RequestHeader(value = "Authorization") String token, @PathVariable int id) {
         try {
             String reducedToken = token.substring(7);
             int userId = jwtService.extractUserId(reducedToken);
@@ -70,7 +77,7 @@ public class MessageController {
             if (foundMessage.getSenderId() != userId && foundMessage.getRecipientId() != userId) {
                 return new ResponseEntity<>(HttpStatusCode.valueOf(401));
             }
-            return new ResponseEntity<>(foundMessage, HttpStatusCode.valueOf(200));
+            return new ResponseEntity<>(messageMapper.mapMessageToMessageWithEmails(foundMessage), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }
@@ -89,14 +96,23 @@ public class MessageController {
 
     @PostMapping(value = "/send-message")
     @Operation(summary = "Send a message")
-    public ResponseEntity<Void> sendMessage(@RequestHeader(value = "Authorization") String token, Message message) {
+    public ResponseEntity<Void> sendMessage(@RequestHeader(value = "Authorization") String token, @RequestBody SendMessageRequest message) {
         try {
             String reducedToken = token.substring(7);
             int userId = jwtService.extractUserId(reducedToken);
             if (message.getSenderId() != userId) {
                 return new ResponseEntity<>(HttpStatusCode.valueOf(401));
             }
-            messageService.saveMessage(message);
+            MessageWithEmails messageWithEmails = new MessageWithEmails(
+                    0,
+                    message.getSubject(),
+                    message.getBody(),
+                    jwtService.extractUsername(reducedToken),
+                    message.getRecipientEmail(),
+                    new Date(),
+                    false,
+                    false);
+            messageService.saveMessage(messageMapper.mapMessageWithEmailsToMessage(messageWithEmails));
             return new ResponseEntity<>(HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
@@ -105,13 +121,13 @@ public class MessageController {
 
     @PostMapping(value = "/search-message")
     @Operation(summary = "Search in list of receives and sent messages")
-    public ResponseEntity<List<Message>> searchMessages(@RequestHeader(value = "Authorization") String token, @RequestBody SearchMessageRequest searchMessageRequest) {
+    public ResponseEntity<List<MessageWithEmails>> searchMessages(@RequestHeader(value = "Authorization") String token, @RequestBody SearchMessageRequest searchMessageRequest) {
         try {
             String reducedToken = token.substring(7);
             int userId = jwtService.extractUserId(reducedToken);
-
-            return new ResponseEntity<>(messageService.search(userId, searchMessageRequest.getSearchText(),
-                    searchMessageRequest.isCaseSensitive()), HttpStatusCode.valueOf(200));
+            List<Message> messages = messageService.search(userId, searchMessageRequest.getSearchText(),
+                    searchMessageRequest.isCaseSensitive());
+            return new ResponseEntity<>(messageMapper.mapMessagesToMessagesWithEmails(messages), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }

@@ -35,7 +35,6 @@ public class UserService {
     public User getUserByEmail(String email) {
         return userDao.findByEmail(email)
                 .orElse(null);
-
     }
 
     public void deleteUserById(int id) {
@@ -55,6 +54,6 @@ public class UserService {
             userDao.save(user);
             return jwtService.generateToken(user);
         }
-        return new VerificationAnswer("Fail", null);
+        return new VerificationAnswer("Fail", null, 0);
     }
 }
