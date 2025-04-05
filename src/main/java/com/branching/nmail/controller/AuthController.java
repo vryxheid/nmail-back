@@ -1,7 +1,9 @@
 package com.branching.nmail.controller;
 
 import com.branching.nmail.controller.models.VerificationAnswer;
+import com.branching.nmail.model.Contact;
 import com.branching.nmail.model.User;
+import com.branching.nmail.service.ContactService;
 import com.branching.nmail.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,9 @@ public class AuthController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    ContactService contactService;
+
     // Csrf is currently disabled in the customized filter chain in SecurityConfig class
 //    @GetMapping("/csrf-token")
 //    public CsrfToken getCsrfToken(HttpServletRequest request) {
@@ -34,7 +39,9 @@ public class AuthController {
             String hash = arg2SpringSecurity.encode(user.getPassword());
 
             user.setPassword(hash);
-            return new ResponseEntity<>(userService.saveUser(user), HttpStatusCode.valueOf(200));
+            User newUser = userService.saveUser(user);
+            contactService.saveContact(new Contact(null, 0, newUser.getName(), newUser.getEmail(), false, newUser.getId()));
+            return new ResponseEntity<>(newUser, HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }

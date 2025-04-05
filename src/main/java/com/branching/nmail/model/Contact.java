@@ -30,5 +30,17 @@ public class Contact {
     @Column(name = "owner_id")
     private int ownerId; // Email of the owner
 
+    public Contact() {
+    }
 
+    ;
+
+    public Contact(String phone, int id, String name, String email, boolean favourite, int ownerId) {
+        this.phone = phone;
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.favourite = favourite;
+        this.ownerId = ownerId;
+    }
 }
